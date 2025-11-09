@@ -27,3 +27,34 @@ class Librarian(models.Model):
 
     def __str__(self):
         return self.name
+    
+from django.contrib.auth.models import User
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
+# UserProfile to extend the built-in User with a role field
+class UserProfile(models.Model):
+    ADMIN = 'Admin'
+    LIBRARIAN = 'Librarian'
+    MEMBER = 'Member'
+
+    ROLE_CHOICES = [
+        (ADMIN, 'Admin'),
+        (LIBRARIAN, 'Librarian'),
+        (MEMBER, 'Member'),
+    ]
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='userprofile')
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default=MEMBER)
+
+    def __str__(self):
+        return f"{self.user.username} ({self.role})"
+
+# Automatically create or update a UserProfile whenever a User is created
+@receiver(post_save, sender=User)
+def create_or_update_user_profile(sender, instance, created, **kwargs):
+    if created:
+        UserProfile.objects.create(user=instance)
+    else:
+        # Ensure profile exists; save to trigger updates if needed
+        UserProfile.objects.get_or_create(user=instance)
