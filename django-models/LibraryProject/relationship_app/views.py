@@ -7,7 +7,9 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required, user_passes_test, permission_required
 from django.http import HttpResponseForbidden
 from django import forms
-from .models import Book, Library
+from .models import Book
+from .models import Library
+from django.contrib.auth.decorators import permission_required
 
 
 def list_books(request):
