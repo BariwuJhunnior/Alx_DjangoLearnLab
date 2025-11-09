@@ -6,7 +6,7 @@ def get_books_by_author(author_name):
     """
     # Method 1: Using the related name (default is book_set)
     author = Author.objects.get(name=author_name)
-    books = author.objects.all()
+    books = author.objects.filter()
     return books
 
     # Method 2: Using direct filter on Book model
