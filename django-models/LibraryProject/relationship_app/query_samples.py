@@ -40,3 +40,13 @@ def get_library_librarian(library_id):
     # Method 2: Direct query on Librarian
     # librarian = Librarian.objects.get(library_id=library_id)
     # return librarian
+
+def get_library_by_name(library_name):
+    """
+    Retrieve a library by its name
+    """
+    try:
+        library = Library.objects.get(name=library_name)
+        return library
+    except Library.DoesNotExist:
+        return None
