@@ -1,11 +1,11 @@
 from .models import Author, Book, Library, Librarian
 
-def get_books_by_author(author_name):
+def get_books_by_author(author_id):
     """
     Query all books by a specific author using ForeignKey relationship
     """
     # Method 1: Get the author first, then filter books
-    author = Author.objects.get(name=author_name)
+    author = Author.objects.get(id=author_id)
     books = Book.objects.filter(author=author)
     return books
 
@@ -29,17 +29,20 @@ def get_library_librarian(library_id):
     """
     Retrieve the librarian for a library using OneToOne relationship
     """
-    # Method 1: From Library to Librarian
-    library = Library.objects.get(id=library_id)
     try:
-        librarian = library.name
+        # Method 1: Get library first, then find its librarian
+        library = Library.objects.get(id=library_id)
+        librarian = Librarian.objects.get(library=library)
         return librarian
-    except Librarian.DoesNotExist:
+    except (Library.DoesNotExist, Librarian.DoesNotExist):
         return None
 
-    # Method 2: Direct query on Librarian
-    # librarian = Librarian.objects.get(library_id=library_id)
-    # return librarian
+    # Method 2: Direct query using library_id
+    # try:
+    #     librarian = Librarian.objects.get(library_id=library_id)
+    #     return librarian
+    # except Librarian.DoesNotExist:
+    #     return None
 
 def get_library_by_name(library_name):
     """
