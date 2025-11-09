@@ -31,5 +31,5 @@ class LibraryDetailView(DetailView):
     context = super().get_context_data(**kwargs)
     library = self.get_object()
     # Use select_related on the books' authors for efficiency
-    context['books'] = library.books.all().select_related('author')
+    context['books'] = library.objects.all()
     return context
