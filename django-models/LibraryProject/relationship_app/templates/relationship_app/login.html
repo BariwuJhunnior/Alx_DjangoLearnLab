@@ -1,18 +1,17 @@
-<!-- login.html -->
+
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Login</title>
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
-</head>
-<body>
-    <h1>Login</h1>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Login</button>
-    </form>
-    <a href="{% url 'register' %}">Register</a>
-</body>
+<html>
+    <head>
+        <title>Login</title>
+        <style>body{font-family:Arial, sans-serif;margin:20px;}form{max-width:320px}</style>
+    </head>
+    <body>
+        <h1>Login</h1>
+        <form method="post" action="">{% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Login</button>
+        </form>
+        <p>Don't have an account? <a href="{% url 'relationship_app:register' %}">Register</a></p>
+        <p><a href="{% url 'relationship_app:book-list' %}">Back to books</a></p>
+    </body>
 </html>

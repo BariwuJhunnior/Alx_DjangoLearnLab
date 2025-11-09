@@ -1,9 +1,10 @@
-from django.shortcuts import render
-from django.http import HttpResponse
-from django.views.generic.detail import DetailView
+
+from django.shortcuts import render, redirect
+from django.views.generic import DetailView
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.forms import UserCreationForm
 from .models import Book
 from .models import Library
-
 
 
 def list_books(request):
@@ -31,5 +32,22 @@ class LibraryDetailView(DetailView):
     context = super().get_context_data(**kwargs)
     library = self.get_object()
     # Use select_related on the books' authors for efficiency
-    context['books'] = library.objects.all()
+    context['books'] = library.objects.all().select_related('author')
     return context
+
+
+def register(request):
+  """Simple user registration view using Django's UserCreationForm."""
+  if request.method == 'POST':
+    form = UserCreationForm(request.POST)
+    if form.is_valid():
+      user = form.save()
+      username = form.cleaned_data.get('username')
+      raw_password = form.cleaned_data.get('password1')
+      user = authenticate(username=username, password=raw_password)
+      if user is not None:
+        login(request, user)
+        return redirect('relationship_app:book-list')
+  else:
+    form = UserCreationForm()
+  return render(request, 'relationship_app/register.html', {'form': form})

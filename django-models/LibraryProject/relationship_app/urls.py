@@ -1,16 +1,14 @@
 from django.urls import path
-from .views import list_books
+from django.contrib.auth import views as auth_views
 from . import views
 
 app_name = 'relationship_app'
 
 urlpatterns = [
-    # Root listing (optional)
     path('', views.list_books, name='list_books'),
-
-    # Function-based view for listing all books
     path('books/', views.list_books, name='book-list'),
-    
-    # Class-based view for library details (expects primary key)
     path('library/<int:pk>/', views.LibraryDetailView.as_view(), name='library-detail'),
+    path('accounts/login/', auth_views.LoginView.as_view(template_name='relationship_app/login.html'), name='login'),
+    path('accounts/logout/', auth_views.LogoutView.as_view(template_name='relationship_app/logout.html'), name='logout'),
+    path('accounts/register/', views.register, name='register'),
 ]

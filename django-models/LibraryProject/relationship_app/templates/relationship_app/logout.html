@@ -1,12 +1,12 @@
-<!-- logout.html -->
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Logout</title>
+    <title>Logged out</title>
+    <style>body{font-family:Arial, sans-serif;margin:20px;}</style>
 </head>
 <body>
     <h1>You have been logged out</h1>
-    <a href="{% url 'login' %}">Login again</a>
+    <p><a href="{% url 'relationship_app:login' %}">Login again</a></p>
+    <p><a href="{% url 'relationship_app:book-list' %}">Back to books</a></p>
 </body>
 </html>
