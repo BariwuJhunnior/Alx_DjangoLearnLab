@@ -50,7 +50,7 @@ def list_books(request):
         'books': books,
         'title': 'All Books'
     }
-    return render(request, 'relationship_app/book_list.html', context)
+    return render(request, 'relationship_app/list_books.html', context)
 
 class LibraryDetailView(DetailView):
     """
