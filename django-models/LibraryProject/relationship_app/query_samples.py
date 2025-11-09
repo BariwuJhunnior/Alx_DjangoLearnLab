@@ -31,8 +31,8 @@ def get_library_librarian(library):
     Retrieve the librarian for a library using OneToOne relationship
     """
     # Method 1: From Library to Librarian
-    library = Library.objects.get(library="")
-    
+    library = Librarian.objects.get(library='')
+
     try:
         librarian = library.name
         return librarian
