@@ -16,7 +16,7 @@ urlpatterns = [
     path('role/librarian/', views.librarian_view, name='librarian-view'),
     path('role/member/', views.member_view, name='member-view'),
     # Book management (permission protected)
-    path('book/add/', views.add_book, name='book-add'),
-    path('book/<int:pk>/edit/', views.edit_book, name='book-edit'),
+    path('book/add_book/', views.add_book, name='book-add'),
+    path('book/<int:pk>/edit/', views.edit_book, name='edit_book'),
     path('book/<int:pk>/delete/', views.delete_book, name='book-delete'),
 ]
