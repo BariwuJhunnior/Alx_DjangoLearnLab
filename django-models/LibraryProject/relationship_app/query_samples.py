@@ -1,11 +1,11 @@
 from .models import Author, Book, Library, Librarian
 
-def get_books_by_author(author_id):
+def get_books_by_author(author_name):
     """
     Query all books by a specific author using ForeignKey relationship
     """
     # Method 1: Get the author first, then filter books
-    author = Author.objects.get(id=author_id)
+    author = Author.objects.get(name=author_name)
     books = Book.objects.filter(author=author)
     return books
 
