@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ library.name }} — Library Details</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .section { margin: 18px 0; padding: 12px; border: 1px solid #eee; border-radius: 6px; }
+        .book-list { list-style: none; padding: 0; }
+        .book-item { margin-bottom: 8px; }
+    </style>
+</head>
+<body>
+    <h1>{{ library.name }}</h1>
+
+    <div class="section">
+        <h2>Books Available</h2>
+        {% if books %}
+            <ul class="book-list">
+            {% for book in books %}
+                <li class="book-item">{{ book.title }} — <em>{{ book.author.name }}</em></li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p>No books found in this library.</p>
+        {% endif %}
+    </div>
+
+    {% if library.librarian %}
+    <div class="section">
+        <h2>Librarian</h2>
+        <p>{{ library.librarian.name }}</p>
+    </div>
+    {% endif %}
+
+    <p><a href="{% url 'relationship_app:book-list' %}">Back to all books</a></p>
+</body>
+</html>

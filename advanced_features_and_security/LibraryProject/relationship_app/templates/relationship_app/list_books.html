@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ title }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .book-list { list-style: none; padding: 0; }
+        .book-item { margin-bottom: 10px; padding: 8px; border: 1px solid #eee; border-radius: 4px; }
+        .book-title { font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>{{ title }}</h1>
+    {% if books %}
+    <ul class="book-list">
+        {% for book in books %}
+            <li class="book-item">
+                <span class="book-title">{{ book.title }}</span>
+                &nbsp;—&nbsp; <span class="book-author">{{ book.author.name }}</span>
+            </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+        <p>No books available.</p>
+    {% endif %}
+</body>
+</html>
