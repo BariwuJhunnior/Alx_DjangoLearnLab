@@ -150,9 +150,17 @@ SECURE_CONTENT_TYPE_NOSNIFF = True
 # These settings enforce HTTPS connections and secure cookie transmission.
 # Enable these for production environments where HTTPS is configured.
 
+# SECURE_PROXY_SSL_HEADER: Tell Django to trust the X-Forwarded-Proto header from reverse proxy.
+# Use this when Django runs behind a reverse proxy (Nginx, Apache) that handles HTTPS.
+# Format: ('HTTP_<HEADER_NAME>', '<EXPECTED_VALUE>')
+# The proxy must set X-Forwarded-Proto: https for Django to recognize HTTPS connections.
+# NOTE: Only enable if you trust the reverse proxy; misconfiguration can bypass HTTPS checks.
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
 # SECURE_SSL_REDIRECT: Redirect all non-HTTPS requests to HTTPS.
 # NOTE: Set to False during local development (localhost doesn't support HTTPS by default).
 # For production, set to True once SSL/TLS certificates are installed on the web server.
+# When using a reverse proxy, ensure it sets X-Forwarded-Proto header correctly.
 SECURE_SSL_REDIRECT = False  # Change to True in production
 
 # SECURE_HSTS_SECONDS: HTTP Strict Transport Security (HSTS) max-age value.
