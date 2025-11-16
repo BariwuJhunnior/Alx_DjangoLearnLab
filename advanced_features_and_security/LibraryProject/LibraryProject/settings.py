@@ -145,14 +145,55 @@ SECURE_BROWSER_XSS_FILTER = True
 X_FRAME_OPTIONS = 'DENY'
 SECURE_CONTENT_TYPE_NOSNIFF = True
 
+# HTTPS and Secure Cookies Configuration
+# ===========================================
+# These settings enforce HTTPS connections and secure cookie transmission.
+# Enable these for production environments where HTTPS is configured.
+
+# SECURE_SSL_REDIRECT: Redirect all non-HTTPS requests to HTTPS.
+# NOTE: Set to False during local development (localhost doesn't support HTTPS by default).
+# For production, set to True once SSL/TLS certificates are installed on the web server.
+SECURE_SSL_REDIRECT = False  # Change to True in production
+
+# SECURE_HSTS_SECONDS: HTTP Strict Transport Security (HSTS) max-age value.
+# Instructs browsers to only access the site via HTTPS for the specified time (in seconds).
+# 31536000 seconds = 1 year. Browsers will remember to use HTTPS even if user types 'http://'.
+# NOTE: Only enable after confirming HTTPS is working; HSTS cannot be undone for the max-age period.
+SECURE_HSTS_SECONDS = 31536000
+
+# SECURE_HSTS_INCLUDE_SUBDOMAINS: Include all subdomains in HSTS policy.
+# If True, subdomains of your site will also be HTTPS-only. Enable for production.
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+
+# SECURE_HSTS_PRELOAD: Allow your site to be included in the HSTS preload list.
+# Browser vendors maintain a preload list of sites that should always use HTTPS.
+# See https://hstspreload.org/ for details. Enable for production.
+SECURE_HSTS_PRELOAD = True
+
 # Ensure cookies are only sent over HTTPS in production
+# SESSION_COOKIE_SECURE: Session cookies (user authentication) only sent over HTTPS.
+# CSRF_COOKIE_SECURE: CSRF tokens only sent over HTTPS.
+# NOTE: Set to False during local development if testing without HTTPS.
+# In production with HTTPS, these should always be True.
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
 
-# Consider enabling HSTS in production if you serve over HTTPS
-# SECURE_HSTS_SECONDS = 31536000
-# SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-# SECURE_HSTS_PRELOAD = True
+# Additional secure cookie settings
+# SESSION_COOKIE_HTTPONLY: Prevent JavaScript from accessing session cookies (mitigates XSS).
+SESSION_COOKIE_HTTPONLY = True
+
+# CSRF_COOKIE_HTTPONLY: Prevent JavaScript from accessing CSRF cookies.
+CSRF_COOKIE_HTTPONLY = True
+
+# SESSION_COOKIE_SAMESITE: Prevent CSRF attacks by restricting when cookies are sent cross-site.
+# 'Strict': Cookie only sent in same-site requests.
+# 'Lax': Cookie sent in top-level navigations and same-site requests.
+# 'None': Cookie sent in all contexts (requires HTTPS).
+# For production, 'Lax' or 'Strict' is recommended.
+SESSION_COOKIE_SAMESITE = 'Lax'
+
+# CSRF_COOKIE_SAMESITE: Apply SameSite restriction to CSRF cookies.
+CSRF_COOKIE_SAMESITE = 'Lax'
 
 # Content Security Policy settings used by our middleware below. Adjust as needed.
 CSP_DEFAULT_SRC = ("'self'",)
