@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Member Area</title>
+    <style>body{font-family:Arial, sans-serif;margin:20px;}</style>
+</head>
+<body>
+    <h1>Member Area</h1>
+    <p>Welcome, {{ request.user.username }}. You have Member access.</p>
+    <p><a href="{% url 'relationship_app:book-list' %}">Back to books</a></p>
+</body>
+</html>
