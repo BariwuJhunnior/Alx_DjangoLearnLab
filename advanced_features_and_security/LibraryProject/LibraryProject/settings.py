@@ -43,6 +43,8 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    # Content Security Policy middleware sets CSP header to mitigate XSS risks
+    'LibraryProject.security_middleware.ContentSecurityPolicyMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -135,4 +137,25 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Custom User Model
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-user-model
 AUTH_USER_MODEL = 'relationship_app.CustomUser'
-AUTH_USER_MODEL = 'bookshelf.CustomUser'
+
+# Security settings
+# NOTE: `DEBUG` is set to False here to reflect production-like settings.
+# For local development, you may keep DEBUG=True but never deploy with it enabled.
+SECURE_BROWSER_XSS_FILTER = True
+X_FRAME_OPTIONS = 'DENY'
+SECURE_CONTENT_TYPE_NOSNIFF = True
+
+# Ensure cookies are only sent over HTTPS in production
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+
+# Consider enabling HSTS in production if you serve over HTTPS
+# SECURE_HSTS_SECONDS = 31536000
+# SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+# SECURE_HSTS_PRELOAD = True
+
+# Content Security Policy settings used by our middleware below. Adjust as needed.
+CSP_DEFAULT_SRC = ("'self'",)
+CSP_IMG_SRC = ("'self'", 'data:')
+CSP_SCRIPT_SRC = ("'self'",)
+CSP_STYLE_SRC = ("'self'",)

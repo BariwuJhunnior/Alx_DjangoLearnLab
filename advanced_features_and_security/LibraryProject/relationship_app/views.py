@@ -1,30 +1,28 @@
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.decorators import login_required, permission_required
-from .models import Book
 from django.urls import reverse
+from .models import Book
+from .forms import BookForm
 
 
 def book_list(request):
-    """List available books (no special permission required to view list)."""
+    """List books. Uses ORM safely (no raw SQL)."""
     books = Book.objects.select_related('author', 'library').all()
     return render(request, 'relationship_app/book_list.html', {'books': books})
 
 
 @login_required
 @permission_required('relationship_app.can_create', raise_exception=True)
-def can_create(request):
-    """Simple create view for Book protected by `can_create` permission.
-
-    This is a minimal example — replace with a ModelForm in a real app.
-    """
+def book_create(request):
+    """Create a Book using a ModelForm to validate input and avoid injection."""
     if request.method == 'POST':
-        title = request.POST.get('title')
-        author_id = request.POST.get('author')
-        library_id = request.POST.get('library')
-        if title and author_id and library_id:
-            Book.objects.create(title=title, author_id=author_id, library_id=library_id)
+        form = BookForm(request.POST)
+        if form.is_valid():
+            form.save()
             return redirect(reverse('relationship_app:book_list'))
-    return render(request, 'relationship_app/book_form.html')
+    else:
+        form = BookForm()
+    return render(request, 'relationship_app/book_form.html', {'form': form})
 
 
 @login_required
@@ -32,12 +30,13 @@ def can_create(request):
 def book_edit(request, pk):
     book = get_object_or_404(Book, pk=pk)
     if request.method == 'POST':
-        title = request.POST.get('title')
-        if title:
-            book.title = title
-            book.save()
+        form = BookForm(request.POST, instance=book)
+        if form.is_valid():
+            form.save()
             return redirect(reverse('relationship_app:book_list'))
-    return render(request, 'relationship_app/book_form.html', {'book': book})
+    else:
+        form = BookForm(instance=book)
+    return render(request, 'relationship_app/book_form.html', {'form': form, 'book': book})
 
 
 @login_required
