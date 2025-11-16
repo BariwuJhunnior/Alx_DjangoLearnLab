@@ -49,11 +49,7 @@ class UserProfileInline(admin.StackedInline):
     fields = ('role',)
 
 
-class CustomUserAdminWithProfile(CustomUserAdmin):
-    """
-    Extended CustomUserAdmin that includes UserProfile inline editing.
-    """
-    inlines = [UserProfileInline]
+
 
 
 class UserProfileAdmin(admin.ModelAdmin):
@@ -66,7 +62,7 @@ class UserProfileAdmin(admin.ModelAdmin):
 
 
 # Register your models here
-admin.site.register(CustomUser, CustomUserAdminWithProfile)
+admin.site.register(CustomUser, CustomUserAdmin)
 admin.site.register(UserProfile, UserProfileAdmin)
 admin.site.register(Author)
 admin.site.register(Library)
