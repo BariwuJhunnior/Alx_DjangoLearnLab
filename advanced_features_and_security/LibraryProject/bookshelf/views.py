@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.decorators import login_required, permission_required
 from django.urls import reverse
 from .models import Book
-from .forms import BookForm
+from .forms import ExampleForm
 
 
 def book_list(request):
@@ -16,12 +16,12 @@ def book_list(request):
 def book_create(request):
     """Create a Book using a ModelForm to validate input and avoid injection."""
     if request.method == 'POST':
-        form = BookForm(request.POST)
+        form = ExampleForm(request.POST)
         if form.is_valid():
             form.save()
             return redirect(reverse('relationship_app:book_list'))
     else:
-        form = BookForm()
+        form = ExampleForm()
     return render(request, 'relationship_app/book_form.html', {'form': form})
 
 
@@ -30,12 +30,12 @@ def book_create(request):
 def book_edit(request, pk):
     book = get_object_or_404(Book, pk=pk)
     if request.method == 'POST':
-        form = BookForm(request.POST, instance=book)
+        form = ExampleForm(request.POST, instance=book)
         if form.is_valid():
             form.save()
             return redirect(reverse('relationship_app:book_list'))
     else:
-        form = BookForm(instance=book)
+        form = ExampleForm(instance=book)
     return render(request, 'relationship_app/book_form.html', {'form': form, 'book': book})
 
 
