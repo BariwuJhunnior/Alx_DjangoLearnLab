@@ -93,10 +93,12 @@ class Book(models.Model):
 
     class Meta:
         # Custom permissions for book management
+        # Use the exact codenames requested: can_view, can_create, can_edit, can_delete
         permissions = (
-            ('can_add_book', 'Can add book'),
-            ('can_change_book', 'Can change book'),
-            ('can_delete_book', 'Can delete book'),
+            ('can_view', 'Can view book'),
+            ('can_create', 'Can create book'),
+            ('can_edit', 'Can edit book'),
+            ('can_delete', 'Can delete book'),
         )
 
 class Librarian(models.Model):
