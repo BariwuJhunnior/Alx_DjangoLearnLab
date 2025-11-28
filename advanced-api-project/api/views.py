@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.urls import reverse
-from rest_framework import generics, permissions, status
+from rest_framework import generics, status
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from .models import Book, Author
 from .serializers import BookSerializer
@@ -35,7 +36,7 @@ class BookCreateView(generics.CreateAPIView):
   """
   queryset = Book.objects.all()
   serializer_class = BookSerializer
-  permission_classes = [permissions.IsAuthenticated]
+  permission_classes = [IsAuthenticated]
 
   def create(self, request, *args, **kwargs):
     # standard validation + save flow with explicit response headers
@@ -70,7 +71,7 @@ class BookListView(generics.ListAPIView):
   """
   queryset = Book.objects.all()
   serializer_class = BookSerializer
-  permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+  permission_classes = [IsAuthenticatedOrReadOnly]
 
   def get_queryset(self):
     # lightweight filtering without extra dependencies
@@ -93,7 +94,7 @@ class BookDetailView(generics.RetrieveAPIView):
   """
   queryset = Book.objects.all()
   serializer_class = BookSerializer
-  permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+  permission_classes = [IsAuthenticatedOrReadOnly]
 
 
 class BookUpdateView(generics.RetrieveUpdateAPIView):
@@ -109,7 +110,7 @@ class BookUpdateView(generics.RetrieveUpdateAPIView):
   """
   queryset = Book.objects.all()
   serializer_class = BookSerializer
-  permission_classes = [permissions.IsAuthenticated]
+  permission_classes = [IsAuthenticated]
 
   def perform_update(self, serializer):
     serializer.save()
@@ -124,5 +125,5 @@ class BookDeleteView(generics.DestroyAPIView):
   """
   queryset = Book.objects.all()
   serializer_class = BookSerializer
-  permission_classes = [permissions.IsAuthenticated]
+  permission_classes = [IsAuthenticated]
 
