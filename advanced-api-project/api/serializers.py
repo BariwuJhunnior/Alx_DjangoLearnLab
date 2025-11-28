@@ -22,9 +22,9 @@ class BookSerializer(serializers.ModelSerializer):
 #Author Serializer, serializing the Author model
 class AuthorSerializer(serializers.ModelSerializer):
   author = serializers.CharField(source='Author.name', read_only=True, many=True)
-  
+
   class Meta:
     model = Author
-    fields = '__all__'
+    fields = ['id', 'name', 'author']
 
   
