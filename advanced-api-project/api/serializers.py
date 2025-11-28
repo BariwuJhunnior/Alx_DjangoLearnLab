@@ -21,10 +21,11 @@ class BookSerializer(serializers.ModelSerializer):
 
 #Author Serializer, serializing the Author model
 class AuthorSerializer(serializers.ModelSerializer):
-  author = serializers.CharField(source='Author.name', read_only=True, many=True)
+  # include the author's books using the reverse relation (Book.author)
+  books = BookSerializer(many=True, read_only=True, source='book_set')
 
   class Meta:
     model = Author
-    fields = ['id', 'name', 'author']
+    fields = ['id', 'name', 'books']
 
   
