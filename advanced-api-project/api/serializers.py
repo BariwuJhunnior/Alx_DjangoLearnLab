@@ -12,7 +12,7 @@ class BookSerializer(serializers.ModelSerializer):
     fields = '__all__'
 
   ##Validation of the 'Publication Year' from the Book Model, to prevent future dates being used as publication date
-  def publication_date_Validation(self, data):
+  def publication_year_Validation(self, data):
     current_year = datetime.date.today().year
 
     if data > current_year:
