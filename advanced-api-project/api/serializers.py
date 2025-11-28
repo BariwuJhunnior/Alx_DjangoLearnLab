@@ -22,7 +22,7 @@ class BookSerializer(serializers.ModelSerializer):
 #Author Serializer, serializing the Author model
 class AuthorSerializer(serializers.ModelSerializer):
   # include the author's books using the reverse relation (Book.author)
-  books = BookSerializer(many=True, read_only=True, source='book_set')
+  books = BookSerializer(many=True, read_only=True)
 
   class Meta:
     model = Author
