@@ -9,7 +9,7 @@ from .filters import BookFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters import rest_framework
 
-import rest_framework.filters as filter
+import rest_framework.filters as filters
 
 # ---------------------------------------------------------------------------
 # Book Views (Generic class-based views)
@@ -81,7 +81,7 @@ class BookListView(generics.ListAPIView):
   #Add DjangoFilterBacked(if you didn't set it globally in the setting.py file)
   #Add SearchFilter to the list of filter backends
   #AddOrderingFilter to the list of filter backends
-  filter_backends = [DjangoFilterBackend, filter.SearchFilter, filter.OrderingFilter]
+  filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
 
   #Connect your custom filter class
   filterset_class = BookFilter
