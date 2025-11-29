@@ -8,8 +8,8 @@ from .serializers import BookSerializer
 from .filters import BookFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters import rest_framework
-from rest_framework.filters import SearchFilter
-from rest_framework.filters import OrderingFilter
+
+import rest_framework.filters as filter
 
 # ---------------------------------------------------------------------------
 # Book Views (Generic class-based views)
@@ -81,7 +81,7 @@ class BookListView(generics.ListAPIView):
   #Add DjangoFilterBacked(if you didn't set it globally in the setting.py file)
   #Add SearchFilter to the list of filter backends
   #AddOrderingFilter to the list of filter backends
-  filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+  filter_backends = [DjangoFilterBackend, filter.SearchFilter, filter.OrderingFilter]
 
   #Connect your custom filter class
   filterset_class = BookFilter
