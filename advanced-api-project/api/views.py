@@ -5,6 +5,10 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticate
 from rest_framework.response import Response
 from .models import Book, Author
 from .serializers import BookSerializer
+from .filters import BookFilter
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import SearchFilter
+from rest_framework.filters import OrderingFilter
 
 # ---------------------------------------------------------------------------
 # Book Views (Generic class-based views)
@@ -72,6 +76,29 @@ class BookListView(generics.ListAPIView):
   queryset = Book.objects.all()
   serializer_class = BookSerializer
   permission_classes = [IsAuthenticatedOrReadOnly]
+
+  #Add DjangoFilterBacked(if you didn't set it globally in the setting.py file)
+  #Add SearchFilter to the list of filter backends
+  #AddOrderingFilter to the list of filter backends
+  filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+
+  #Connect your custom filter class
+  filterset_class = BookFilter
+
+  #Configure the fields the search should check
+  search_fields = ['title', 'author']
+
+  #Specify the fields available for ordering
+  ordering_fields = ['title', 'author', 'publication_year', 'id']
+
+  #Optional, Set a default sort order if no 'ordering' parameter is provided, results will be ordered by 'title' ascending
+  ordering = ['title']
+
+  
+
+  
+
+
 
   def get_queryset(self):
     # lightweight filtering without extra dependencies
