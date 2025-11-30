@@ -9,6 +9,7 @@ class BookAPITest(APITestCase):
   def setUp(self):
     self.user = User.objects.create_user(username='testuser', password='password123')
     self.anonymous_user = User.objects.create_user(username='anon', password='password123')
+    self.client.login()
 
     self.list_url = reverse('book-list')
 
