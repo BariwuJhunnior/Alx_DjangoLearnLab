@@ -2,21 +2,27 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase, force_authenticate, APIRequestFactory, APIClient
 from django.contrib.auth.models import User
-from .models import Book
+from .models import Book, Author
 
 class BookAPITest(APITestCase):
 
   def setUp(self):
     self.user = User.objects.create_user(username='testuser', password='password123')
     self.anonymous_user = User.objects.create_user(username='anon', password='password123')
-    self.client.login()
+    self.client.login(username='testuser', password='password123')
+
+    # Create Author objects for ForeignKey relationships
+    self.adams = Author.objects.create(name="Douglas Adams")
+    self.orwell = Author.objects.create(name="George Orwell")
+
+    self.detail_url = reverse('book-detail', kwargs={'pk': self.book1.pk})
 
     self.list_url = reverse('book-list')
 
     self.book1 = Book.objects.create(
       title="The Hitchhiker's Guide",
-      author="Douglas Adams",
-      publication_year=1979,
+      author=self.adams,
+      publication_year="1979-10-12",
       user=self.user
     )
 
