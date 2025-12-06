@@ -20,7 +20,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-!mbuc24*8k)g425kg-x)uw$!yaggl2nu@k!pv8*lz8evoy&m%3'
+SECRET_KEY = 'django-insecure-#8ftmwr875$%oj%!zvoo4k_it)^=(muh$j)*!y8lvy(f!mx&x@'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -77,8 +77,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'Django_Blog_Database',
-        'USER': 'root',
         'HOST': 'localhost',
+        'USER': 'root',
         'PASSWORD': 'tilammg1234',
         'PORT': '3306',
     }
@@ -121,6 +121,6 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/'
-LOGIN_URL = '/login/'
+STATICFILES_DIRS = [
+ BASE_DIR / 'static',
+]
