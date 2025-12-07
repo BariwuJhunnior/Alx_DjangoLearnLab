@@ -220,8 +220,8 @@ class CommentCreateView(LoginRequiredMixin, CreateView):
     template_name = 'blog/comment_form.html'
     
     def dispatch(self, request, *args, **kwargs):
-        """Extract post_id from URL kwargs and store it."""
-        self.post_id = kwargs.get('post_id')
+        """Extract pk from URL kwargs and store it."""
+        self.pk = kwargs.get('pk')
         return super().dispatch(request, *args, **kwargs)
     
     def get_context_data(self, **kwargs):
@@ -231,7 +231,7 @@ class CommentCreateView(LoginRequiredMixin, CreateView):
         
         # Get the parent post for context
         try:
-            post = Post.objects.get(id=self.post_id, is_published=True)
+            post = Post.objects.get(id=self.pk, is_published=True)
             context['post'] = post
         except Post.DoesNotExist:
             messages.error(self.request, 'Post not found.')
@@ -241,7 +241,7 @@ class CommentCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         """Set the post and author before saving the comment."""
         try:
-            post = Post.objects.get(id=self.post_id, is_published=True)
+            post = Post.objects.get(id=self.pk, is_published=True)
             comment = form.save(commit=False)
             comment.post = post
             comment.author = self.request.user
@@ -253,7 +253,7 @@ class CommentCreateView(LoginRequiredMixin, CreateView):
     
     def get_success_url(self):
         """Redirect to the parent post after successful comment creation."""
-        return reverse('post_detail', kwargs={'pk': self.post_id})
+        return reverse('post_detail', kwargs={'pk': self.pk})
 
 
 @login_required
