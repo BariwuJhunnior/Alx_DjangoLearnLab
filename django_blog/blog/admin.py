@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Profile, Post
+from .models import Profile, Post, Comment
 
 
 @admin.register(Post)
@@ -34,3 +34,35 @@ class ProfileAdmin(admin.ModelAdmin):
     list_filter = ['location', 'birth_date']
     search_fields = ['user__username', 'bio', 'location', 'website']
     readonly_fields = ['user']
+
+
+@admin.register(Comment)
+class CommentAdmin(admin.ModelAdmin):
+    """
+    Admin configuration for Comment model.
+    """
+    list_display = ['content_preview', 'author', 'post', 'created_at', 'updated_at']
+    list_filter = ['created_at', 'updated_at', 'author']
+    search_fields = ['content', 'author__username', 'post__title']
+    date_hierarchy = 'created_at'
+    ordering = ['-created_at']
+    readonly_fields = ['created_at', 'updated_at']
+    
+    fieldsets = (
+        ('Comment Information', {
+            'fields': ('content', 'author', 'post')
+        }),
+        ('Timestamps', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+    
+    def content_preview(self, obj):
+        """Return a short preview of the comment content."""
+        if obj.content:
+            return obj.content[:50] + '...' if len(obj.content) > 50 else obj.content
+        return '(No content)'
+
+# Set short description for admin display after class definition
+setattr(CommentAdmin.content_preview, 'short_description', 'Content Preview')

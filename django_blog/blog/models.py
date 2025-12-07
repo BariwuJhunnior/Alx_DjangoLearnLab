@@ -54,13 +54,39 @@ class Profile(models.Model):
         verbose_name_plural = "User Profiles"
 
 @receiver(post_save, sender=User)
-def create_user_profile(_sender, instance, created, **_kwargs):
+def create_user_profile(sender, instance, created, **kwargs):
     """Create a Profile instance whenever a new User is created."""
     if created:
         Profile.objects.create(user=instance)
 
 @receiver(post_save, sender=User)
-def save_user_profile(_sender, instance, **_kwargs):
+def save_user_profile(sender, instance, **kwargs):
     """Save the Profile instance whenever the User is saved."""
     if hasattr(instance, 'profile'):
         instance.profile.save()
+
+
+class Comment(models.Model):
+    """
+    Comment model for blog posts.
+    Allows users to leave comments on blog posts.
+    """
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments', help_text="The blog post this comment belongs to")
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments', help_text="The user who wrote this comment")
+    content = models.TextField(help_text="Comment content")
+    created_at = models.DateTimeField(auto_now_add=True, help_text="When the comment was created")
+    updated_at = models.DateTimeField(auto_now=True, help_text="When the comment was last updated")
+    
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = "Comment"
+        verbose_name_plural = "Comments"
+    
+    def __str__(self):
+        return f"Comment by {self.author.username} on {self.post.title}"
+    
+    def save(self, *args, **kwargs):
+        """Override save to handle updated_at field."""
+        if not self.pk:  # Only set updated_at on creation if not already set
+            pass  # Let auto_now_add handle created_at, auto_now handles updated_at
+        super().save(*args, **kwargs)

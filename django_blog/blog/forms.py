@@ -1,7 +1,7 @@
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from django.contrib.auth import get_user_model
 from django import forms
-from .models import Profile, Post
+from .models import Profile, Post, Comment
 
 User = get_user_model()
 
@@ -119,5 +119,44 @@ class PostForm(forms.ModelForm):
             # Check for minimum length
             if len(content) < 50:
                 raise forms.ValidationError('Content must be at least 50 characters long.')
+        return content
+
+
+class CommentForm(forms.ModelForm):
+    """
+    Form for creating and editing comments on blog posts.
+    Automatically sets the author to the current logged-in user.
+    """
+    
+    class Meta:
+        model = Comment
+        fields = ['content']
+        widgets = {
+            'content': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 4,
+                'placeholder': 'Write your comment here...',
+                'required': True
+            })
+        }
+        help_texts = {
+            'content': 'Share your thoughts on this post. Be respectful and constructive.'
+        }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Make content required
+        self.fields['content'].required = True
+    
+    def clean_content(self):
+        """Clean and validate the content field."""
+        content = self.cleaned_data.get('content')
+        if content:
+            # Check for minimum length
+            if len(content) < 5:
+                raise forms.ValidationError('Comment must be at least 5 characters long.')
+            # Check for maximum length (Django model will also enforce this via TextField)
+            if len(content) > 2000:
+                raise forms.ValidationError('Comment cannot exceed 2000 characters.')
         return content
     
