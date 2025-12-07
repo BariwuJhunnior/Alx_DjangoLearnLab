@@ -1,0 +1,15 @@
+{% extends "base.html" %} 
+{# Assumes you have a base template for layout #}
+
+{% block content %}
+    <h2>Register for an Account</h2>
+    <form method="post">
+        {% csrf_token %} 
+        
+        {# Display all fields of the form (username, email, password, password confirmation) #}
+        {{ form.as_p }} 
+        
+        <button type="submit">Sign Up</button>
+    </form>
+    <p>Already have an account? <a href="{% url 'login' %}">Log In</a></p>
+{% endblock content %}

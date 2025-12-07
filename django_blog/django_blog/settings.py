@@ -121,6 +121,17 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+""" 
 STATICFILES_DIRS = [
  BASE_DIR / 'static',
-]
+] """
+
+
+# Define where users go after successfully logging in.
+# The 'home' is a common name for the main application index view.
+LOGIN_REDIRECT_URL = 'home'
+
+
+# Define where users go after successfully logging out.
+# Often set to the login page itself or the homepage.
+LOGOUT_REDIRECT_URL = 'login' #or could be "/"
