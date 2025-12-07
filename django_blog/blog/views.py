@@ -1,11 +1,16 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.contrib import messages
-from typing import Union
-from .forms import CustomUserCreationForm, ProfileForm
-from .models import Profile
+from typing import Union, TYPE_CHECKING, cast
+from .forms import CustomUserCreationForm, ProfileForm, PostForm
+from .models import Profile, Post
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+
+if TYPE_CHECKING:
+    from django.contrib.auth.models import User
 
 # Create your views here.
 def register(request: HttpRequest) -> Union[HttpResponse, HttpResponseRedirect]:
@@ -39,12 +44,9 @@ def register(request: HttpRequest) -> Union[HttpResponse, HttpResponseRedirect]:
 
 def home(request: HttpRequest) -> HttpResponse:
     """
-    Display the home page of the blog.
+    Redirect to the blog posts list (home page).
     """
-    context = {
-        'title': 'Home'
-    }
-    return render(request, 'blog/base.html', context)
+    return redirect('post_list')
 
 @login_required
 def profile_view(request: HttpRequest) -> HttpResponse:
@@ -53,7 +55,7 @@ def profile_view(request: HttpRequest) -> HttpResponse:
     Requires user to be logged in.
     """
     # Get or create the user's profile
-    profile, created = Profile.objects.get_or_create(user=request.user)
+    profile, _ = Profile.objects.get_or_create(user=request.user)
     
     context = {
         'user': request.user,
@@ -70,7 +72,7 @@ def profile_edit(request: HttpRequest) -> Union[HttpResponse, HttpResponseRedire
     POST: Process the form submission and update user profile
     """
     # Get or create the user's profile
-    profile, created = Profile.objects.get_or_create(user=request.user)
+    profile, _ = Profile.objects.get_or_create(user=request.user)
     
     if request.method == 'POST':
         form = ProfileForm(request.POST, request.FILES, instance=profile)
@@ -88,3 +90,103 @@ def profile_edit(request: HttpRequest) -> Union[HttpResponse, HttpResponseRedire
         'title': 'Edit Profile'
     }
     return render(request, 'blog/profile_edit.html', context)
+
+
+# Blog Post CRUD Views
+class PostListView(ListView):
+    """
+    Display a list of all published blog posts.
+    Accessible to all users (authenticated and anonymous).
+    """
+    model = Post
+    template_name = 'blog/post_list.html'
+    context_object_name = 'posts'
+    paginate_by = 10
+    
+    def get_queryset(self):
+        """Return only published posts, ordered by publication date."""
+        return Post.objects.filter(is_published=True).select_related('author')
+
+
+class PostDetailView(DetailView):
+    """
+    Display a single blog post in detail.
+    Accessible to all users for published posts.
+    """
+    model = Post
+    template_name = 'blog/post_detail.html'
+    context_object_name = 'post'
+    
+    def get_queryset(self):
+        """Return only published posts."""
+        return Post.objects.filter(is_published=True).select_related('author')
+
+
+class PostCreateView(LoginRequiredMixin, CreateView):
+    """
+    Allow authenticated users to create new blog posts.
+    Automatically sets the author to the current user.
+    """
+    model = Post
+    form_class = PostForm
+    template_name = 'blog/post_form.html'
+    success_url = '/posts/'
+    
+    def form_valid(self, form):
+        """Set the author to the current user before saving."""
+        form.instance.author = self.request.user
+        messages.success(self.request, 'Your blog post has been created successfully!')
+        return super().form_valid(form)
+    
+    def get_context_data(self, **kwargs):
+        """Add page title to context."""
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Create New Post'
+        return context
+
+
+class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    """
+    Allow post authors to edit their own posts.
+    Only the author can edit their posts.
+    """
+    model = Post
+    form_class = PostForm
+    template_name = 'blog/post_form.html'
+    success_url = '/posts/'
+    
+    def form_valid(self, form):
+        """Save the updated post."""
+        messages.success(self.request, 'Your blog post has been updated successfully!')
+        return super().form_valid(form)
+    
+    def test_func(self):
+        """Check if the current user is the author of the post."""
+        post = cast(Post, self.get_object())
+        return post.author == self.request.user
+    
+    def get_context_data(self, **kwargs):
+        """Add page title to context."""
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Edit Post'
+        return context
+
+
+class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    """
+    Allow post authors to delete their own posts.
+    Only the author can delete their posts.
+    """
+    model = Post
+    template_name = 'blog/post_confirm_delete.html'
+    success_url = '/posts/'
+    
+    def test_func(self):
+        """Check if the current user is the author of the post."""
+        post = cast(Post, self.get_object())
+        return post.author == self.request.user
+    
+    def delete(self, request, *args, **kwargs):
+        """Override delete to add success message."""
+        messages.success(self.request, 'Your blog post has been deleted successfully!')
+        return super().delete(request, *args, **kwargs)

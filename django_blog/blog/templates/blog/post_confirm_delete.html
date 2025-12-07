@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Delete Post - Django Blog{% endblock %}
+
+{% block content %}
+    <div class="post-delete-container">
+        <h1>Delete Post</h1>
+        
+        <div class="delete-warning">
+            <h2>Are you sure?</h2>
+            <p class="warning-message">
+                This action cannot be undone. This will permanently delete the post 
+                "<strong>{{ object.title }}</strong>".
+            </p>
+        </div>
+
+        <div class="post-preview">
+            <h3>Post Preview:</h3>
+            <div class="post-summary">
+                <h4>{{ object.title }}</h4>
+                <div class="post-meta">
+                    <span>By {{ object.author.get_full_name|default:object.author.username }}</span>
+                    <span>Published: {{ object.published_date|date:"F d, Y" }}</span>
+                </div>
+                <p class="content-snippet">{{ object.content_snippet }}</p>
+            </div>
+        </div>
+
+        <form method="post" class="delete-form">
+            {% csrf_token %}
+            
+            <div class="form-actions">
+                <button type="submit" class="btn btn-danger">Yes, delete this post</button>
+                <a href="{% url 'post_detail' object.pk %}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+
+        <div class="delete-info">
+            <h4>What happens when you delete a post?</h4>
+            <ul>
+                <li>The post will be permanently removed from the database</li>
+                <li>All comments and interactions will be lost</li>
+                <li>Other users will no longer be able to access this content</li>
+                <li>This action cannot be reversed</li>
+            </ul>
+        </div>
+    </div>
+{% endblock content %}

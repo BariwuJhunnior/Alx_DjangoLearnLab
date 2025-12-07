@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}{{ post.title }} - Django Blog{% endblock %}
+
+{% block content %}
+    <article class="post-detail-container">
+        <header class="post-detail-header">
+            <h1 class="post-title">{{ post.title }}</h1>
+            <div class="post-meta">
+                <div class="author-info">
+                    <span class="author-name">By {{ post.author.get_full_name|default:post.author.username }}</span>
+                    <span class="author-username">@{{ post.author.username }}</span>
+                </div>
+                <div class="post-dates">
+                    <span class="published-date">Published: {{ post.published_date|date:"F d, Y \a\t g:i A" }}</span>
+                    {% if post.updated_date > post.published_date %}
+                        <span class="updated-date">Updated: {{ post.updated_date|date:"F d, Y \a\t g:i A" }}</span>
+                    {% endif %}
+                </div>
+            </div>
+        </header>
+
+        <div class="post-content">
+            {{ post.content|linebreaks }}
+        </div>
+
+        <footer class="post-detail-footer">
+            <div class="post-actions">
+                <a href="{% url 'post_list' %}" class="btn btn-secondary">Back to Posts</a>
+                {% if user.is_authenticated and user == post.author %}
+                    <div class="author-actions">
+                        <a href="{% url 'post_update' post.pk %}" class="btn btn-primary">Edit Post</a>
+                        <a href="{% url 'post_delete' post.pk %}" class="btn btn-danger">Delete Post</a>
+                    </div>
+                {% elif user.is_authenticated %}
+                    <p class="read-only-notice">You can only edit your own posts.</p>
+                {% else %}
+                    <a href="{% url 'login' %}" class="btn btn-primary">Login to Create Posts</a>
+                {% endif %}
+            </div>
+        </footer>
+
+        {% if user.is_authenticated and user == post.author %}
+            <div class="post-stats">
+                <p><strong>Post Status:</strong> 
+                    {% if post.is_published %}
+                        <span class="status-published">Published</span>
+                    {% else %}
+                        <span class="status-draft">Draft</span>
+                    {% endif %}
+                </p>
+            </div>
+        {% endif %}
+    </article>
+
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags|default:'info' }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endblock content %}

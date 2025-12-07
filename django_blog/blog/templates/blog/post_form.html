@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} - Django Blog{% endblock %}
+
+{% block content %}
+    <div class="post-form-container">
+        <h1>{{ title }}</h1>
+        
+        {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags|default:'info' }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <form method="post" class="post-form">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="{{ form.title.id_for_label }}">Title *</label>
+                {{ form.title }}
+                {% if form.title.errors %}
+                    <div class="error">{{ form.title.errors }}</div>
+                {% endif %}
+                {% if form.title.help_text %}
+                    <small class="help-text">{{ form.title.help_text }}</small>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.content.id_for_label }}">Content *</label>
+                {{ form.content }}
+                {% if form.content.errors %}
+                    <div class="error">{{ form.content.errors }}</div>
+                {% endif %}
+                {% if form.content.help_text %}
+                    <small class="help-text">{{ form.content.help_text }}</small>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <div class="form-check">
+                    {{ form.is_published }}
+                    <label for="{{ form.is_published.id_for_label }}" class="form-check-label">
+                        Publish immediately
+                    </label>
+                    {% if form.is_published.help_text %}
+                        <small class="help-text">{{ form.is_published.help_text }}</small>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    {% if 'edit' in request.resolver_match.url_name %}
+                        Update Post
+                    {% else %}
+                        Create Post
+                    {% endif %}
+                </button>
+                <a href="{% if 'edit' in request.resolver_match.url_name %}{% url 'post_detail' post.pk %}{% else %}{% url 'post_list' %}{% endif %}" class="btn btn-secondary">
+                    Cancel
+                </a>
+            </div>
+        </form>
+
+        {% if 'edit' in request.resolver_match.url_name %}
+            <div class="post-info">
+                <h3>Post Information</h3>
+                <p><strong>Author:</strong> {{ post.author.get_full_name|default:post.author.username }}</p>
+                <p><strong>Created:</strong> {{ post.published_date|date:"F d, Y \a\t g:i A" }}</p>
+                <p><strong>Last Updated:</strong> {{ post.updated_date|date:"F d, Y \a\t g:i A" }}</p>
+                <p><strong>Status:</strong> 
+                    {% if post.is_published %}
+                        <span class="status-published">Published</span>
+                    {% else %}
+                        <span class="status-draft">Draft</span>
+                    {% endif %}
+                </p>
+            </div>
+        {% endif %}
+    </div>
+{% endblock content %}
