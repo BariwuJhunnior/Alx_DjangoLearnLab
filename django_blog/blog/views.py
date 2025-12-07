@@ -1,14 +1,15 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.contrib import messages
 from typing import Union, TYPE_CHECKING, cast
-from .forms import CustomUserCreationForm, ProfileForm, PostForm, CommentForm
-from .models import Profile, Post, Comment
+from .forms import CustomUserCreationForm, ProfileForm, PostForm, CommentForm, SearchForm
+from .models import Profile, Post, Comment, Tag
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse
+from django.db.models import Q, Count
 
 if TYPE_CHECKING:
     from django.contrib.auth.models import User
@@ -206,6 +207,66 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         """Override delete to add success message."""
         messages.success(self.request, 'Your blog post has been deleted successfully!')
         return super().delete(request, *args, **kwargs)
+
+
+# Search and Tag Views
+
+def search_posts(request: HttpRequest) -> HttpResponse:
+    """
+    Search for posts based on query string.
+    Searches through title, content, and tags.
+    """
+    query = request.GET.get('q', '').strip()
+    posts = Post.objects.none()  # Empty queryset by default
+    
+    if query:
+        # Search across title, content, and tags using Q objects
+        posts = Post.objects.filter(
+            Q(title__icontains=query) |
+            Q(content__icontains=query) |
+            Q(tags__name__icontains=query),
+            is_published=True
+        ).distinct().select_related('author').prefetch_related('tags')
+    
+    form = SearchForm(request.GET)
+    
+    context = {
+        'form': form,
+        'posts': posts,
+        'query': query,
+        'title': f"Search Results for '{query}'" if query else "Search Posts"
+    }
+    return render(request, 'blog/search_results.html', context)
+
+
+def posts_by_tag(request: HttpRequest, tag_name: str) -> HttpResponse:
+    """
+    Display all posts associated with a specific tag.
+    """
+    tag = get_object_or_404(Tag, name=tag_name)
+    posts = Post.objects.filter(tags=tag, is_published=True).select_related('author').prefetch_related('tags')
+    
+    context = {
+        'tag': tag,
+        'posts': posts,
+        'title': f"Posts tagged with '{tag_name}'"
+    }
+    return render(request, 'blog/posts_by_tag.html', context)
+
+
+def all_tags(request: HttpRequest) -> HttpResponse:
+    """
+    Display all available tags with post counts.
+    """
+    tags = Tag.objects.annotate(
+        post_count=Count('posts', filter=Q(posts__is_published=True))
+    ).filter(post_count__gt=0).order_by('name')
+    
+    context = {
+        'tags': tags,
+        'title': 'All Tags'
+    }
+    return render(request, 'blog/all_tags.html', context)
 
 
 # Comment CRUD Views

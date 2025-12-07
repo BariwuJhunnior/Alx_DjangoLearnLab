@@ -9,14 +9,36 @@
 </head>
 <body>
     <header>
-        <nav>
-            <ul>
-                <li><a href="{% url 'home' %}">Home</a></li>
-                <li><a href="{% url 'posts' %}">Blog Posts</a></li>
-                <li><a href="{% url 'login' %}">Login</a></li>
-                <li><a href="{% url 'register' %}">Register</a></li>
-            </ul>
+        <nav class="main-nav">
+            <div class="nav-left">
+                <ul>
+                    <li><a href="{% url 'home' %}">Home</a></li>
+                    <li><a href="{% url 'post_list' %}">Blog Posts</a></li>
+                    <li><a href="{% url 'all_tags' %}">Tags</a></li>
+                    <li><a href="{% url 'search_posts' %}">Search</a></li>
+                </ul>
+            </div>
+            <div class="nav-right">
+                <ul>
+                    {% if user.is_authenticated %}
+                        <li><a href="{% url 'profile' %}">{{ user.username }}</a></li>
+                        <li><a href="{% url 'post_create' %}">Create Post</a></li>
+                        <li><a href="{% url 'logout' %}">Logout</a></li>
+                    {% else %}
+                        <li><a href="{% url 'login' %}">Login</a></li>
+                        <li><a href="{% url 'register' %}">Register</a></li>
+                    {% endif %}
+                </ul>
+            </div>
         </nav>
+        
+        <!-- Quick Search Form -->
+        <div class="search-bar">
+            <form method="get" action="{% url 'search_posts' %}" class="search-form">
+                <input type="text" name="q" placeholder="Search posts..." class="search-input">
+                <button type="submit" class="search-btn">Search</button>
+            </form>
+        </div>
     </header>
 
     <div class="content">

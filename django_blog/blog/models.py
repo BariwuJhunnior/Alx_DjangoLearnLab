@@ -4,6 +4,27 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 # Create your models here.
+class Tag(models.Model):
+    """
+    Tag model for categorizing blog posts.
+    """
+    name = models.CharField(max_length=50, unique=True, help_text="Name of the tag")
+    created_at = models.DateTimeField(auto_now_add=True, help_text="When the tag was created")
+    
+    class Meta:
+        ordering = ['name']
+        verbose_name = "Tag"
+        verbose_name_plural = "Tags"
+    
+    def __str__(self):
+        return self.name
+    
+    def get_absolute_url(self):
+        """Return the URL to view all posts with this tag."""
+        from django.urls import reverse
+        return reverse('posts_by_tag', args=[self.name])
+
+
 class Post(models.Model):
     """
     Blog post model for storing user-generated content.
@@ -15,6 +36,7 @@ class Post(models.Model):
     updated_date = models.DateTimeField(auto_now=True, help_text="Date when the post was last updated")
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='posts', help_text="Author of the post")
     is_published = models.BooleanField(default=True, help_text="Whether the post is published")
+    tags = models.ManyToManyField(Tag, blank=True, related_name='posts', help_text="Tags associated with this post")
     
     class Meta:
         ordering = ['-published_date']

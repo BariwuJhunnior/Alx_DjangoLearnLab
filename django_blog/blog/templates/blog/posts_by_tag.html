@@ -1,14 +1,16 @@
 {% extends "blog/base.html" %}
 
-{% block title %}Blog Posts - Django Blog{% endblock %}
+{% block title %}Posts tagged with "{{ tag.name }}" - Django Blog{% endblock %}
 
 {% block content %}
-    <div class="post-list-container">
-        <div class="post-list-header">
-            <h1>Blog Posts</h1>
-            {% if user.is_authenticated %}
-                <a href="{% url 'post_create' %}" class="btn btn-primary">Create New Post</a>
-            {% endif %}
+    <div class="tag-filter-container">
+        <div class="tag-header">
+            <div class="breadcrumb">
+                <a href="{% url 'post_list' %}">All Posts</a> / 
+                <a href="{% url 'all_tags' %}">Tags</a> / 
+                <span class="current-tag">{{ tag.name }}</span>
+            </div>
+            <h1>Posts tagged with "{{ tag.name }}"</h1>
         </div>
 
         {% if posts %}
@@ -50,35 +52,26 @@
                     </article>
                 {% endfor %}
             </div>
-
-            {% if is_paginated %}
-                <div class="pagination">
-                    {% if page_obj.has_previous %}
-                        <a href="?page=1" class="btn">First</a>
-                        <a href="?page={{ page_obj.previous_page_number }}" class="btn">Previous</a>
-                    {% endif %}
-                    
-                    <span class="current-page">
-                        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
-                    </span>
-                    
-                    {% if page_obj.has_next %}
-                        <a href="?page={{ page_obj.next_page_number }}" class="btn">Next</a>
-                        <a href="?page={{ page_obj.paginator.num_pages }}" class="btn">Last</a>
-                    {% endif %}
-                </div>
-            {% endif %}
         {% else %}
-            <div class="no-posts">
-                <h3>No posts yet</h3>
-                {% if user.is_authenticated %}
-                    <p>Be the first to create a blog post!</p>
-                    <a href="{% url 'post_create' %}" class="btn btn-primary">Create Your First Post</a>
-                {% else %}
-                    <p>No blog posts have been published yet.</p>
-                    <a href="{% url 'login' %}" class="btn btn-primary">Login to Create Posts</a>
-                {% endif %}
+            <div class="no-posts-for-tag">
+                <h3>No posts found for this tag</h3>
+                <p>There are currently no published posts with the tag "{{ tag.name }}".</p>
+                <a href="{% url 'post_list' %}" class="btn btn-primary">Browse All Posts</a>
             </div>
         {% endif %}
+
+        <!-- Tag Actions -->
+        <div class="tag-actions">
+            <a href="{% url 'all_tags' %}" class="btn btn-secondary">Browse All Tags</a>
+            {% if user.is_authenticated %}
+                <a href="{% url 'post_create' %}" class="btn btn-primary">Create New Post</a>
+            {% endif %}
+        </div>
+
+        <!-- Related Tags -->
+        <div class="related-tags">
+            <h3>Explore other tags:</h3>
+            <a href="{% url 'all_tags' %}" class="btn btn-outline">View All Tags</a>
+        </div>
     </div>
 {% endblock content %}

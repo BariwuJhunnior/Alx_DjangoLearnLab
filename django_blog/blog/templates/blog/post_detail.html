@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "blog/base.html" %}
 
 {% block title %}{{ post.title }} - Django Blog{% endblock %}
 
@@ -23,6 +23,15 @@
         <div class="post-content">
             {{ post.content|linebreaks }}
         </div>
+
+        {% if post.tags.all %}
+        <div class="post-tags-detail">
+            <span class="tags-label">Tags:</span>
+            {% for tag in post.tags.all %}
+                <a href="{% url 'posts_by_tag' tag.name %}" class="tag">{{ tag.name }}</a>
+            {% endfor %}
+        </div>
+        {% endif %}
 
         <footer class="post-detail-footer">
             <div class="post-actions">

@@ -1,15 +1,30 @@
 {% extends "blog/base.html" %}
 
-{% block title %}Blog Posts - Django Blog{% endblock %}
+{% block title %}{{ title }} - Django Blog{% endblock %}
 
 {% block content %}
-    <div class="post-list-container">
-        <div class="post-list-header">
-            <h1>Blog Posts</h1>
-            {% if user.is_authenticated %}
-                <a href="{% url 'post_create' %}" class="btn btn-primary">Create New Post</a>
-            {% endif %}
+    <div class="search-container">
+        <div class="search-header">
+            <h1>{{ title }}</h1>
+            
+            <!-- Search Form -->
+            <form method="get" action="{% url 'search_posts' %}" class="search-form">
+                <div class="search-input-group">
+                    <input type="text" name="q" value="{{ query }}" placeholder="Search posts..." class="search-input">
+                    <button type="submit" class="btn btn-primary">Search</button>
+                </div>
+            </form>
         </div>
+
+        {% if query %}
+            <div class="search-info">
+                {% if posts %}
+                    <p>Found {{ posts|length }} post{{ posts|length|pluralize }} matching "{{ query }}"</p>
+                {% else %}
+                    <p>No posts found matching "{{ query }}". Try different keywords or check your spelling.</p>
+                {% endif %}
+            </div>
+        {% endif %}
 
         {% if posts %}
             <div class="posts-grid">
@@ -50,35 +65,23 @@
                     </article>
                 {% endfor %}
             </div>
-
-            {% if is_paginated %}
-                <div class="pagination">
-                    {% if page_obj.has_previous %}
-                        <a href="?page=1" class="btn">First</a>
-                        <a href="?page={{ page_obj.previous_page_number }}" class="btn">Previous</a>
-                    {% endif %}
-                    
-                    <span class="current-page">
-                        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
-                    </span>
-                    
-                    {% if page_obj.has_next %}
-                        <a href="?page={{ page_obj.next_page_number }}" class="btn">Next</a>
-                        <a href="?page={{ page_obj.paginator.num_pages }}" class="btn">Last</a>
-                    {% endif %}
-                </div>
-            {% endif %}
+        {% elif query %}
+            <div class="no-results">
+                <h3>No matching posts found</h3>
+                <p>Try searching with different keywords or browse all posts.</p>
+                <a href="{% url 'post_list' %}" class="btn btn-primary">Browse All Posts</a>
+            </div>
         {% else %}
-            <div class="no-posts">
-                <h3>No posts yet</h3>
-                {% if user.is_authenticated %}
-                    <p>Be the first to create a blog post!</p>
-                    <a href="{% url 'post_create' %}" class="btn btn-primary">Create Your First Post</a>
-                {% else %}
-                    <p>No blog posts have been published yet.</p>
-                    <a href="{% url 'login' %}" class="btn btn-primary">Login to Create Posts</a>
-                {% endif %}
+            <div class="search-prompt">
+                <h3>Search Posts</h3>
+                <p>Enter keywords to search through blog posts by title, content, or tags.</p>
             </div>
         {% endif %}
+
+        <!-- Browse All Tags -->
+        <div class="browse-tags">
+            <h3>Or browse by tags:</h3>
+            <a href="{% url 'all_tags' %}" class="btn btn-secondary">View All Tags</a>
+        </div>
     </div>
 {% endblock content %}
