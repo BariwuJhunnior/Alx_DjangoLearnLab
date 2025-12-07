@@ -16,13 +16,13 @@ The Django Blog Comment System allows users to engage with blog posts by leaving
 
 ### User Permissions
 
-| Action | Anonymous Users | Authenticated Users | Comment Authors | Admins |
-|--------|----------------|---------------------|-----------------|---------|
-| View Comments | ✅ | ✅ | ✅ | ✅ |
-| Add Comments | ❌ | ✅ | ✅ | ✅ |
-| Edit Comments | ❌ | ❌ | ✅ (own only) | ✅ (all) |
-| Delete Comments | ❌ | ❌ | ✅ (own only) | ✅ (all) |
-| Admin Moderation | ❌ | ❌ | ❌ | ✅ |
+| Action            | Anonymous Users | Authenticated Users | Comment Authors | Admins    |
+|-------------------|-----------------|---------------------|-----------------|-----------|
+| View Comments     | Yes             | Yes                 | Yes             | Yes       |
+| Add Comments      | No              | Yes                 | Yes             | Yes       |
+| Edit Comments     | No              | No                  | Yes (own only)  | Yes (all) |
+| Delete Comments   | No              | No                  | Yes (own only)  | Yes (all) |
+| Admin Moderation  | No              | No                  | No              | Yes |
 
 ## Technical Implementation
 
