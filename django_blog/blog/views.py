@@ -209,11 +209,59 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
 
 # Comment CRUD Views
+
+class CommentCreateView(LoginRequiredMixin, CreateView):
+    """
+    Allow authenticated users to create new comments on blog posts.
+    Associates the comment with the specified post.
+    """
+    model = Comment
+    form_class = CommentForm
+    template_name = 'blog/comment_form.html'
+    
+    def dispatch(self, request, *args, **kwargs):
+        """Extract post_id from URL kwargs and store it."""
+        self.post_id = kwargs.get('post_id')
+        return super().dispatch(request, *args, **kwargs)
+    
+    def get_context_data(self, **kwargs):
+        """Add page title and post context."""
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Add Comment'
+        
+        # Get the parent post for context
+        try:
+            post = Post.objects.get(id=self.post_id, is_published=True)
+            context['post'] = post
+        except Post.DoesNotExist:
+            messages.error(self.request, 'Post not found.')
+            # This will be handled by form_valid with a redirect
+        return context
+    
+    def form_valid(self, form):
+        """Set the post and author before saving the comment."""
+        try:
+            post = Post.objects.get(id=self.post_id, is_published=True)
+            comment = form.save(commit=False)
+            comment.post = post
+            comment.author = self.request.user
+            messages.success(self.request, 'Your comment has been added successfully!')
+            return super().form_valid(form)
+        except Post.DoesNotExist:
+            messages.error(self.request, 'Post not found.')
+            return redirect('post_list')
+    
+    def get_success_url(self):
+        """Redirect to the parent post after successful comment creation."""
+        return reverse('post_detail', kwargs={'pk': self.post_id})
+
+
 @login_required
 def add_comment(request: HttpRequest, post_id: int) -> Union[HttpResponse, HttpResponseRedirect]:
     """
     Add a new comment to a blog post.
     Requires user to be logged in.
+    (Legacy function-based view - kept for backwards compatibility)
     """
     if request.method != 'POST':
         return redirect('post_detail', pk=post_id)
