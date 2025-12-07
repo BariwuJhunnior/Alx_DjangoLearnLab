@@ -1,7 +1,8 @@
+from django.db.models.query import QuerySet
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.contrib import messages
-from typing import Union, TYPE_CHECKING, cast
+from typing import Any, Union, TYPE_CHECKING, cast
 from .forms import CustomUserCreationForm, ProfileForm, PostForm, CommentForm, SearchForm
 from .models import Profile, Post, Comment, Tag
 from django.contrib.auth import login
@@ -207,6 +208,31 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         """Override delete to add success message."""
         messages.success(self.request, 'Your blog post has been deleted successfully!')
         return super().delete(request, *args, **kwargs)
+
+
+class PostByTagListView(ListView):
+    model = Post
+
+    template_name = 'blog/post_list.html'
+    context_object_name = 'posts'
+    paginate_by = 10
+
+    def get_queryset(self):
+        tag_slug = self.kwargs.get('tag_slug')
+
+        try:
+            tag = Tag.objects.get(slug=tag_slug)
+        except Tag.DoesNotExist:
+            return Post.objects.none()
+        
+        return Post.objects.filter(tags__slug=tag_slug).distinct()
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        tag_slug = self.kwargs.get('tag_slug')
+        context['current_tag'] = Tag.objects.get(slug=tag_slug)
+
+        return context
 
 
 # Search and Tag Views
