@@ -4,6 +4,21 @@ from django import forms
 from .models import Profile, Post, Comment, Tag
 
 
+class TagWidget(forms.TextInput):
+    """
+    Custom widget for handling tag input.
+    Displays tags as a comma-separated text input field.
+    """
+    def __init__(self, attrs=None):
+        default_attrs = {
+            'class': 'form-control',
+            'placeholder': 'Enter tags separated by commas...',
+        }
+        if attrs:
+            default_attrs.update(attrs)
+        super().__init__(attrs=default_attrs)
+
+
 class SearchForm(forms.Form):
     """Form for handling search queries."""
     query = forms.CharField(
@@ -86,10 +101,7 @@ class PostForm(forms.ModelForm):
         max_length=200, 
         required=False, 
         help_text="Enter tags separated by commas (e.g., 'python, django, web development')",
-        widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Enter tags separated by commas...',
-        })
+        widget=TagWidget()
     )
     
     class Meta:
