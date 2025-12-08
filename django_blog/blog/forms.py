@@ -49,6 +49,12 @@ class CustomUserCreationForm(UserCreationForm):
 
     fields = ('username', 'email')
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        #Make the email field required during registration
+        self.fields['email'].required = True
+
 class ProfileForm(forms.ModelForm):
     """
     Form for editing user profile information.
