@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import CustomUser
+from rest_framework.authtoken.models import Token
 
 class CustomUserSerializer(serializers.ModelSerializer):
   # 'write_only=True' is crucial for the password! 
