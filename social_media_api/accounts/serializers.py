@@ -1,16 +1,24 @@
 from rest_framework import serializers
 from .models import CustomUser
+from django.contrib.auth import get_user_model
 
 class CustomUserSerializer(serializers.ModelSerializer):
   # 'write_only=True' is crucial for the password! 
     # It ensures the password is accepted for creating the user 
     # but is never sent back in the API response (security first!).
-  password = serializers.CharField(write_only=True)
+  password = serializers.CharField(write_only=True, max_length=128, required=True, min_length=8)
+
+  token = serializers.CharField(read_only=True)
 
   class Meta:
     model = CustomUser
     fields = ['id', 'username', 'email', 'bio', 'profile_picture', 'followers', 'password']
     read_only_fields = ['id']
+  
+  followers_count = serializers.SerializerMethodField()
+  
+  def get_followers_count(self, obj):
+    return obj.followers.count()
 
 
   # Override the default 'create' method to correctly hash the password
@@ -24,3 +32,5 @@ class CustomUserSerializer(serializers.ModelSerializer):
     if password is not None:
       user.set_password(password)
       user.save()
+
+    return user
