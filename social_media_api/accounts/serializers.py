@@ -9,7 +9,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
     # but is never sent back in the API response (security first!).
   password = serializers.CharField(write_only=True, max_length=128, required=True, min_length=8)
 
-  token = serializers.CharField(read_only=True)
+  token = serializers.CharField()
 
   class Meta:
     model = CustomUser
@@ -35,3 +35,24 @@ class CustomUserSerializer(serializers.ModelSerializer):
       user.save()
 
     return user
+  
+  def create(self, request, *args, **kwargs):
+    serializer = self.get_serializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+
+    # This calls the secure create method we defined in the serializer
+    self.perform_create(serializer)
+
+    # --- Token Generation ---
+    # Get the newly created user instance
+    user = serializer.instance
+
+    # Create a new token linked to the user
+    token, created = Token.objects.get_or_create(user=user)
+
+    # --- Response ---
+    # The API response will contain the user data AND the new token
+    return Response({
+      'user': serializer.data,
+      'token': token.key
+    },status=201)
