@@ -25,8 +25,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
     password = validated_data.pop('password', None)
 
     # Use Django's recommended create_user method for secure user creation
-    User = get_user_model()
-    user = User.objects.create_user(password=password, **validated_data)
+    user = get_user_model().objects.create_user(password=password, **validated_data)
 
     # create an auth token for the newly registered user
     Token.objects.create(user=user)
