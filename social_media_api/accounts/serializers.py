@@ -24,12 +24,8 @@ class CustomUserSerializer(serializers.ModelSerializer):
   def create(self, validated_data):
     password = validated_data.pop('password', None)
 
-    # Create the user instance/object with the remaining validated data
-    user = CustomUser.objects.create(**validated_data)
-
-    #Use set_password to hash the password securely before saving
-    if password is not None:
-      user.set_password(password)
-      user.save()
+    # Use Django's recommended create_user method for secure user creation
+    User = get_user_model()
+    user = User.objects.create_user(password=password, **validated_data)
 
     return user
