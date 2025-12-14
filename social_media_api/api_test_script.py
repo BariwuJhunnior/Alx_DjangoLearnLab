@@ -105,7 +105,7 @@ def main():
     token = test_user_registration()
     
     if token:
-        print(f"\n✅ Registration successful! Token: {token}")
+        print(f"\nRegistration successful! Token: {token}")
         
         # Test profile view
         test_profile_view(token)
@@ -117,15 +117,15 @@ def main():
         login_token = test_user_login()
         
         if login_token:
-            print(f"\n✅ Login successful! Token: {login_token}")
+            print(f"\nLogin successful! Token: {login_token}")
             test_profile_view(login_token)
     else:
-        print("\n❌ Registration failed!")
+        print("\nRegistration failed!")
         
         # Try login with existing user
         login_token = test_user_login()
         if login_token:
-            print(f"\n✅ Login successful! Token: {login_token}")
+            print(f"\nLogin successful! Token: {login_token}")
             test_profile_view(login_token)
 
 if __name__ == "__main__":
