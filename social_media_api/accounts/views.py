@@ -1,6 +1,9 @@
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from rest_framework import generics, permissions
+from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.views import APIView
+from django.contrib.auth import authenticate
 from .serializers import CustomUserSerializer
 
 # Create your views here.
@@ -32,7 +35,34 @@ class RegisterUserView(generics.CreateAPIView):
       'user': serializer.data,
       'token': token.key
     },status=201)
+
+class CustomLoginView(APIView):
+    """Custom login view that returns user data along with the token"""
+    permission_classes = (permissions.AllowAny,)
     
+    def post(self, request, *args, **kwargs):
+        # Get username and password from request data
+        username = request.data.get('username')
+        password = request.data.get('password')
+        
+        if not username or not password:
+            return Response({'error': 'Username and password are required'}, status=400)
+        
+        # Authenticate the user
+        user = authenticate(username=username, password=password)
+        
+        if not user:
+            return Response({'error': 'Invalid credentials'}, status=401)
+        
+        # Get or create token for the user
+        token, created = Token.objects.get_or_create(user=user)
+        
+        # Return user data along with token
+        return Response({
+            'user': CustomUserSerializer(user).data,
+            'token': token.key
+        })
+
 class UserProfileView(generics.RetrieveUpdateAPIView):
   """
   Allows authenticated users to view (GET) and update (PUT/PATCH) their own profile.

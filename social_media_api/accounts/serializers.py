@@ -9,13 +9,11 @@ class CustomUserSerializer(serializers.ModelSerializer):
     # but is never sent back in the API response (security first!).
   password = serializers.CharField(write_only=True, max_length=128, required=True, min_length=8)
 
-  token = serializers.CharField()
-
   class Meta:
     model = CustomUser
     fields = ['id', 'username', 'email', 'bio', 'profile_picture', 'followers', 'password']
     read_only_fields = ['id']
-  
+   
   followers_count = serializers.SerializerMethodField()
   
   def get_followers_count(self, obj):
@@ -35,5 +33,3 @@ class CustomUserSerializer(serializers.ModelSerializer):
       user.save()
 
     return user
-  
-  
