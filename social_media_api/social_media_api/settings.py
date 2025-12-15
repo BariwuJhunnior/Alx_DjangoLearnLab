@@ -38,9 +38,23 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'accounts',
+    'posts',
     'rest_framework',
-    'rest_framework.authtoken',
+    'drf_spectacular',
+    'rest_framework.authtoken',       
 ]
+
+REST_FRAMEWORK = {
+  'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+#Optional: Define custom documentation details
+SPECTACULAR_SETTINGS = {
+  'TITLE': 'Social Media API',
+  'DESCRIPTION': 'Documentation for the Posts and Comments service',
+  'VERSION': '1.0.0',
+  'SERVE_INCLUDE_SCHEMA': False,
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -120,3 +134,4 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 AUTH_USER_MODEL = 'accounts.CustomUser'
+

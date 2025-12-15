@@ -16,8 +16,18 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView #Note: You only need to import SpectacularAPIView if you want the raw schemafile.
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('accounts.urls')),
+    path('api/v1/', include('posts.urls')),
+
+    #DRF SPECTACULAR URLS - Post and Comment Documentation URL path
+    #1. Endpoint to generate the raw OpenAPI schema file(yaml/json)
+    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
+
+    #2. Endpoint for the Swagger UI (interactive documentation)
+    path('api/schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+
 ]
