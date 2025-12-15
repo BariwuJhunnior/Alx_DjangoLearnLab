@@ -21,4 +21,7 @@ urlpatterns = [
     path('', include(posts_router.urls)),
     # Dynamic feed endpoint
     path('posts/feed/', PostViewSet.as_view({'get': 'feed'}), name='post-feed'),
+    # Like and Unlike endpoints
+    path('posts/<int:pk>/like/', PostViewSet.as_view({'post': 'like'}), name='post-like'),
+    path('posts/<int:pk>/unlike/', PostViewSet.as_view({'post': 'unlike'}), name='post-unlike'),
 ]
