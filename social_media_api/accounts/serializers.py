@@ -5,8 +5,8 @@ from rest_framework.authtoken.models import Token
 
 class CustomUserSerializer(serializers.ModelSerializer):
   # 'write_only=True' is crucial for the password! 
-    # It ensures the password is accepted for creating the user 
-    # but is never sent back in the API response (security first!).
+  # It ensures the password is accepted for creating the user 
+  # but is never sent back in the API response (security first!).
   password = serializers.CharField(write_only=True, max_length=128, required=True, min_length=8)
 
   class Meta:
