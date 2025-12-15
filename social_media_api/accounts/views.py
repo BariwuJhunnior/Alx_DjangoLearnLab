@@ -12,7 +12,8 @@ from .models import CustomUser
 from drf_spectacular.utils import extend_schema
 
 
-class CustomUserViewSet(viewsets.ModelViewSet):
+class CustomUserViewSet(viewsets.ModelViewSet, generics.GenericAPIView):
+  queryset = CustomUser.objects.all()
   @extend_schema(summary='Follow a specific user.', description="Allows the authenticated user to add the user specified by the ID in the URL to their 'following' list. Requires authentication.", responses={
     200: {'description': 'Successfully followed the user.'},
     400: {'description': 'Cannot follow yourself.'},
