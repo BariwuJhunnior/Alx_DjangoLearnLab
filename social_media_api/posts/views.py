@@ -40,11 +40,11 @@ class PostViewSet(viewsets.ModelViewSet):
   def feed(self,request):
     # 1. Get the list of users the current user follows
     # request.user.following.all() returns a QuerySet of User objects
-    followed_users = request.user.following.all()
+    following_users = request.user.following.all()
 
     # 2. Filter posts to include only those authored by followed users
     # We use the author field's reverse relationship: author__in
-    feed_posts = Post.objects.filter(author__in=followed_users).order_by('-created_at')
+    feed_posts = Post.objects.filter(author__in=following_users).order_by('-created_at')
 
     # 3. Apply your existing pagination
     page = self.paginate_queryset(feed_posts)
