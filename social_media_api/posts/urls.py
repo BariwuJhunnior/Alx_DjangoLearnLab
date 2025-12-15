@@ -19,4 +19,6 @@ urlpatterns = [
     path('', include(router.urls)),
     # Includes all routes from the nested router (/posts/{post_pk}/comments/, etc.)
     path('', include(posts_router.urls)),
+    # Dynamic feed endpoint
+    path('posts/feed/', PostViewSet.as_view({'get': 'feed'}), name='post-feed'),
 ]
