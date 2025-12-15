@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from rest_framework import viewsets
+from rest_framework import viewsets, generics
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from .models import Post, Comment, Like
@@ -88,7 +88,7 @@ class PostViewSet(viewsets.ModelViewSet):
   @action(detail=True, methods=['post'])
   def like(self, request, pk=None):
     #1. Get the post object being liked
-    post = self.get_object()
+    post = generics.get_object_or_404(Post, pk=pk)
     user = request.user
 
     #2. Prevent liking your own post
@@ -99,9 +99,8 @@ class PostViewSet(viewsets.ModelViewSet):
       )
     
     #3. Create the like object
-    try:
-      Like.objects.create(post=post, user=user)
-    except IntegrityError:
+    like_obj, created = Like.objects.get_or_create(user=request.user, post=post)
+    if not created:
       #Handles the unique_together constraint (already liked)
       return Response(
         {'detail': 'You have already liked this post.'},
@@ -188,8 +187,6 @@ class CommentViewSet(viewsets.ModelViewSet):
       raise ValidationError({'post': 'Post not found!'})
 
     # We save the instance, setting both the author and the post
-    serializer.save(author=self.request.user, post=post)
-
     comment = serializer.save(author=self.request.user, post=post)
 
     #Check if commenter is NOT the post author
@@ -199,5 +196,3 @@ class CommentViewSet(viewsets.ModelViewSet):
       # Actor is the commenter (request.user)
       # Target is the comment itself
       create_notification(recipient=post.author, actor=self.request.user, verb='commented on your post', target=comment)
-
-    return Response({'detail': 'Post unliked successfully.'}, status=status.HTTP_200_OK)
