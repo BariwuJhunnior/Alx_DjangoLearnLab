@@ -10,6 +10,20 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from .models import CustomUser
 from drf_spectacular.utils import extend_schema
+from django.contrib.contenttypes.models import ContentType
+from notifications.models import Notification
+
+#Helper function to create a notification (we'll implement this logic directly for now)
+def create_notification(recipient, actor, verb, target):
+  #Get the ContentType of the target object
+  target_content_type = ContentType.objects.get_for_model(target)
+
+  Notification.objects.create(
+    recipient=recipient,
+    actor=actor,
+    verb=verb,
+    target=target
+  )
 
 
 class CustomUserViewSet(viewsets.ModelViewSet, generics.GenericAPIView):
@@ -38,6 +52,17 @@ class CustomUserViewSet(viewsets.ModelViewSet, generics.GenericAPIView):
     
     #Add the relationship to the 'following' M2M field
     follower.following.add(user_to_follow)
+
+    #Generate Notification
+    # Recipient is the person being followed (user_to_follow)
+    # Actor is the person who followed (follower)
+    # Target is the actor, as the notification is about the new follower
+    create_notification(
+      recipient=user_to_follow,
+      actor=follower,
+      verb='started following you',
+      target=follower
+    )
 
     return Response({'detail': f'Successfully followed {user_to_follow.username}.'}, status=status.HTTP_200_OK)
 

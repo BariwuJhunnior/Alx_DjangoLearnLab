@@ -2,7 +2,7 @@ from django.shortcuts import render
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
-from .models import Post, Comment
+from .models import Post, Comment, Like
 from .serializers import PostSerializer, CommentSerializer
 from .pagination import StandardResultsSetPagination
 from rest_framework.filters import SearchFilter
@@ -10,6 +10,22 @@ from drf_spectacular.utils import extend_schema
 from rest_framework.exceptions import ValidationError
 from rest_framework.decorators import action
 from rest_framework import permissions
+from rest_framework import status
+from django.db import IntegrityError # To catch the unique_together constraint
+from notifications.models import Notification
+from django.contrib.contenttypes.models import ContentType
+
+#Helper function to create a notification (we'll implement this logic directly for now)
+def create_notification(recipient, actor, verb, target):
+  #Get the ContentType of the target object
+  target_content_type = ContentType.objects.get_for_model(target)
+
+  Notification.objects.create(
+    recipient=recipient,
+    actor=actor,
+    verb=verb,
+    target=target
+  )
 
 # Create your views here.
 class PostViewSet(viewsets.ModelViewSet):
@@ -55,7 +71,81 @@ class PostViewSet(viewsets.ModelViewSet):
     # 4. If no pagination is applied (unlikely), serialize and return
     serializer = self.get_serializer(feed_posts, many=True)
     return Response(serializer.data)
+  
+  #Documentation for LIKE Action
+  @extend_schema(
+      summary='Like a Post',
+      description='Allows an authenticated user to like the specified post(by {pk}). If successfull, generates a notification for the post author.',
+      request=None, #POST body is empty
+      responses= {
+        201: {'detail': 'Post liked successfully.'},
+        400: {'detail': 'You have already liked this post' or 'You cannot like you own post.'},
+        401: {'detail': 'Authentication credentials were not provided.'}
+      }
+  )
+  # Custom Action 1: LIKE POST
+  # Mapped to: /posts/{post_id}/like/ (POST request)
+  @action(detail=True, methods=['post'])
+  def like(self, request, pk=None):
+    #1. Get the post object being liked
+    post = self.get_object()
+    user = request.user
 
+    #2. Prevent liking your own post
+    if post.author == user:
+      return Response(
+        {'detail': 'You cannot like your own post.'},
+        status=status.HTTP_400_BAD_REQUEST
+      )
+    
+    #3. Create the like object
+    try:
+      Like.objects.create(post=post, user=user)
+    except IntegrityError:
+      #Handles the unique_together constraint (already liked)
+      return Response(
+        {'detail': 'You have already liked this post.'},
+        status=status.HTTP_400_BAD_REQUEST
+      )
+
+    #4. Generate Notification
+    #Notify the author of the post (recipient) that the user (actor) liked their post(target)
+    create_notification(
+      recipient=post.author,
+      actor=user,
+      verb='liked your post',
+      target=post
+    )
+
+    return Response({'detail': 'Post like successfully.'}, status=status.HTTP_201_CREATED)
+  
+  #Documentation for UNLIKE Action
+  @extend_schema(
+      summary='Unlike a Post',
+      description='Allows an authenticated user to remove their like from the specified post(by {pk}).',
+      request=None, #POST body is empty
+      responses= {
+        201: {'detail': 'Post unliked successfully.'},
+        400: {'detail': 'You have not liked this post yet.'},
+        401: {'detail': 'Authentication credentials were not provided.'}
+      }
+  )
+  # Custom Action 2: UNLIKE POST
+  # Mapped to: /posts/{post_id}/unlike/ (POST request)
+  @action(detail=True, methods=['post'])
+  def unlike(self, request, pk=None):
+    #1. Get the post object
+    post = self.get_object()
+    user = request.user
+
+    #2. Delete the like object
+    deleted_count, _ = Like.objects.filter(post=post, user=user).delete()
+
+    if deleted_count == 0:
+      return Response(
+        {'detail': 'You have not liked this post yet.'},
+        status=status.HTTP_400_BAD_REQUEST
+      )
 
 class CommentViewSet(viewsets.ModelViewSet):
   # This will be refined later for nesting, but for now, we get all comments
@@ -100,4 +190,14 @@ class CommentViewSet(viewsets.ModelViewSet):
     # We save the instance, setting both the author and the post
     serializer.save(author=self.request.user, post=post)
 
-  
+    comment = serializer.save(author=self.request.user, post=post)
+
+    #Check if commenter is NOT the post author
+    if post.author != self.request.user:
+      # 3. Generate Notification
+      # Recipient is the post author
+      # Actor is the commenter (request.user)
+      # Target is the comment itself
+      create_notification(recipient=post.author, actor=self.request.user, verb='commented on your post', target=comment)
+
+    return Response({'detail': 'Post unliked successfully.'}, status=status.HTTP_200_OK)
