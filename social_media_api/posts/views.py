@@ -9,7 +9,7 @@ from rest_framework.filters import SearchFilter
 from drf_spectacular.utils import extend_schema
 from rest_framework.exceptions import ValidationError
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
+from rest_framework import permissions
 
 # Create your views here.
 class PostViewSet(viewsets.ModelViewSet):
@@ -36,7 +36,7 @@ class PostViewSet(viewsets.ModelViewSet):
   @extend_schema(summary='Get personalized content feed.', description="Retrieves a paginated list of posts authored ONLY by users the current authenticated user is following. Results are ordered by most recent first.", responses={200: PostSerializer(many=True), 401: {'description': "Authentication credentials were not provided."}})
   # Dynamic Content Feed
   # Mapped to: /posts/feed/
-  @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated])
+  @action(detail=False, methods=['get'], permission_classes=[permissions.IsAuthenticated])
   def feed(self,request):
     # 1. Get the list of users the current user follows
     # request.user.following.all() returns a QuerySet of User objects
