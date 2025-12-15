@@ -6,17 +6,17 @@ from .views import PostViewSet, CommentViewSet
 router = routers.DefaultRouter()
 
 # Register the top-level resource (Posts)
-router.register('posts', PostViewSet, basename='post')
+router.register(r'posts', PostViewSet, basename='post')
 
 # 2. Create the nested router based on the 'posts' resource
 posts_router = routers.NestedDefaultRouter(router, r'posts', lookup='post')
 
 # 3. Register the CommentViewSet under the nested router
-posts_router.register(r'comments', CommentViewSet, basename='post-commets')
+posts_router.register(r'comments', CommentViewSet, basename='post-comments')
 
 urlpatterns = [
     # Includes all routes from the root router (/posts/, /posts/{pk}/)
     path('', include(router.urls)),
     # Includes all routes from the nested router (/posts/{post_pk}/comments/, etc.)
-    path('', include(posts_router.urls))
+    path('', include(posts_router.urls)),
 ]

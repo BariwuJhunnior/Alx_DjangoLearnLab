@@ -13,10 +13,10 @@ class CustomUser(AbstractUser):
   # A Many-to-Many field for following other users.
     # We reference 'self' because a user follows another user.
     # symmetrical=False is key here: if I follow you, it doesn't mean you automatically follow me back.
-  followers = models.ManyToManyField(
+  following = models.ManyToManyField(
     'self',
     symmetrical=False,
-    related_name='following', 
+    related_name='followers', 
     blank=True
   )
 

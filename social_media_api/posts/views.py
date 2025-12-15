@@ -7,6 +7,8 @@ from .pagination import StandardResultsSetPagination
 from rest_framework.filters import SearchFilter
 from drf_spectacular.utils import extend_schema
 from rest_framework.exceptions import ValidationError
+from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
 
 # Create your views here.
 class PostViewSet(viewsets.ModelViewSet):
@@ -28,6 +30,30 @@ class PostViewSet(viewsets.ModelViewSet):
   # 4. CRITICAL: We need to override the create method to automatically set the author without relying on the user to submit it.
   def perform_create(self, serializer):
     serializer.save(author=self.request.user)
+
+  #Documentation of Dynamic Content Feed
+  @extend_schema(summary='Get personalized content feed.', description="Retrieves a paginated list of posts authored ONLY by users the current authenticated user is following. Results are ordered by most recent first.", responses={200: PostSerializer(many=True), 401: {'description': "Authentication credentials were not provided."}})
+  # Dynamic Content Feed
+  # Mapped to: /posts/feed/
+  @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated])
+  def feed(self,request):
+    # 1. Get the list of users the current user follows
+    # request.user.following.all() returns a QuerySet of User objects
+    followed_users = request.user.following.all()
+
+    # 2. Filter posts to include only those authored by followed users
+    # We use the author field's reverse relationship: author__in
+    feed_posts = Post.objects.filter(author__in=followed_users).order_by('-created_at')
+
+    # 3. Apply your existing pagination
+    page = self.paginate_queryset(feed_posts)
+    if page is not None:
+      serializer = self.get_serializer(page, many=True)
+      return self.get_paginated_response(serializer.data)
+    
+    # 4. If no pagination is applied (unlikely), serialize and return
+    serializer = self.get_serializer(feed_posts, many=True)
+    return Response(serializer.data)
 
 
 class CommentViewSet(viewsets.ModelViewSet):
