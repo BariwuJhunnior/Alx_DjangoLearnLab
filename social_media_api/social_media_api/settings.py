@@ -14,6 +14,10 @@ from pathlib import Path
 import os
 import dj_database_url
 
+
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
+BASE_DIR = Path(__file__).resolve().parent.parent
+
 # Example configuration reading from environment variable
 DATABASES = {
     'default': dj_database_url.config(
@@ -74,9 +78,6 @@ LOGGING = {
     },
 }
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
@@ -87,7 +88,12 @@ SECRET_KEY = 'django-insecure-blwl)(-sqienq#67-&u)=fvy(qu1f4n462q&4kn0duw3!3m&p4
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
+
 ALLOWED_HOSTS = ['*']
+
+# Port used by hosting platforms (e.g., Heroku) or to override `runserver`.
+# Read from environment variable `PORT`, defaulting to 8000.
+PORT = int(os.environ.get('PORT', 8000))
 
 
 # Application definition
