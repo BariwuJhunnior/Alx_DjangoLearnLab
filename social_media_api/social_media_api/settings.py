@@ -37,7 +37,7 @@ STATICFILES_DIRS = [
 # If your deployment enforces HTTPS (highly recommended):
 
 # Redirect all HTTP requests to HTTPS (requires configuring your web server too)
-SECURE_SSL_REDIRECT = True 
+SECURE_SSL_REDIRECT = False
 # Helps prevent Man-in-the-Middle attacks 
 SECURE_HSTS_SECONDS = 31536000 # 1 year
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
@@ -51,11 +51,11 @@ SECURE_CONTENT_TYPE_NOSNIFF = True
 # Prevents clickjacking attacks (default is 'DENY' in newer Django, but setting explicitly is safer)
 X_FRAME_OPTIONS = 'DENY'
 
-# Setting this to True prevents the browser from sending the CSRF token cookie 
+# Setting this to True prevents the browser from sending the CSRF token cookie
 # with cross-site requests (protects against CSRF attacks)
-CSRF_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = False
 # Setting this to True ensures the session cookie is only transmitted over HTTPS
-SESSION_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = False
 
 # 5. Logging (Essential for debugging production issues)
 # You must set up proper logging to a file or a service (like Sentry/CloudWatch)
@@ -66,7 +66,7 @@ LOGGING = {
         'file': {
             'level': 'WARNING',
             'class': 'logging.FileHandler',
-            'filename': '/var/log/django/production_warnings.log', # CHANGE PATH AS NEEDED
+            'filename': str(BASE_DIR / 'logs' / 'production_warnings.log'),
         },
     },
     'loggers': {
@@ -86,7 +86,7 @@ LOGGING = {
 SECRET_KEY = 'django-insecure-blwl)(-sqienq#67-&u)=fvy(qu1f4n462q&4kn0duw3!3m&p4'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 
 ALLOWED_HOSTS = ['*']
